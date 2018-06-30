@@ -1,0 +1,75 @@
+#Módulos
+import os                                                  #modulo para centrar ventana
+import pygame
+from pygame.locals import *                                #con estas dos lineas importamos pygame
+
+#Constantes 
+Ancho = 1280 
+Alto = 720
+
+# Clases
+#--------------------------------------------------------------------------------
+ 
+class Ladron(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image("quieto.png", True)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = Ancho/ 2
+        self.rect.centery = Alto / 2
+        self.speed = [0.5, -0.5]
+
+    def mover(self, time, keys):
+        
+            if keys[K_UP]:
+                self.rect.centery -= self.speed * time
+        
+            if keys[K_DOWN]:
+                self.rect.centery += self.speed * time
+            
+#--------------------------------------------------------------------------------
+        
+#Funciones
+
+#fondo
+def load_image(fondo1, transparent=False):            #recibe parametros: 1)nombre/ruta 2)Si tiene parte transparente
+        try: image = pygame.image.load(fondo1)        #asignacion de imagen a una variable
+        except pygame.error. message:                       #maneja errores por si no existe imagen
+                raise SystemExit. message
+        image = image.convert()                             #convierte la imagen al tipo interno de pygame
+        if transparent:                                     #condicion por si la imagen tiene transparencia
+                color = image.get_at((0,0))
+                image.set_colorkey(color, RLEACCEL)
+        return image                                        #retorna imagen
+
+#--------------------------------------------------------------------------------
+def main():
+    screen = pygame.display.set_mode((Ancho, Alto))         #definir tamaño de ventana
+    pygame.display.set_caption("Sammler")                   #Poner titulo a la ventana
+
+    background_image = load_image('fondo1.jpg')
+    ladron = Ladron()
+    
+    clock = pygame.time.Clock()
+    
+#codigo juego
+
+    while True:
+        
+        screen.blit(background_image, (0, 0))
+        screen.blit(ladron.image, ladron.rect)
+        pygame.display.flip()
+        
+        #for eventos in pygame.event.get():
+         #   if eventos.type == QUIT:
+          #        #exit()
+           #       pygame.quit()
+    return 0
+
+#inicializar    
+if __name__ == '__main__': 
+    os.environ['SDL_VIDEO_CENTERED'] = '1'                 #centrar ventana
+    pygame.init()                                          #Con esto inicializamos pygame
+    main()                                                 #llamada a la funcion main
+    
+
