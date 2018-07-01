@@ -2,6 +2,7 @@
 
 import pygame
 import ladron
+import nivel1
 
 
 pygame.init()
@@ -16,6 +17,7 @@ class Cursor(pygame.Rect):
 
 # Definimos algunas variables que usaremos en nuestro código
 class Boton(pygame.sprite.Sprite):
+    
     def __init__(self,imagen1,imagen2,x=0,y=0):
         self.imagen_normal=imagen1
         self.imagen_seleccion=imagen2
@@ -27,11 +29,38 @@ class Boton(pygame.sprite.Sprite):
     def update(self,pantalla,cursor):
         if cursor.colliderect(self.rect):
             self.imagen_actual=self.imagen_seleccion
+            
         else:
             self.imagen_actual=self.imagen_normal
 
         pantalla.blit(self.imagen_actual,self.rect)
     
+    
+def Nivel():
+    ancho_ventana = 740
+    alto_ventana = 480
+    screen = pygame.display.set_mode((ancho_ventana, alto_ventana))
+    pygame.display.set_caption("SAMMLER")
+    nivel1=pygame.image.load("nivel.jpg")
+    
+    player = ladron.Ladron((ancho_ventana/2, alto_ventana/2))
+    
+    clock = pygame.time.Clock()
+    game_over = False
+
+    while game_over == False:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            
+        clock.tick(20)
+        screen.blit(nivel1,(0,0))
+        player.handle_event(event)
+        screen.blit(player.image, player.rect)
+        pygame.display.update()
+        
+    pygame.quit ()
+
 def main():
     
     pygame.mixer.init()
@@ -41,10 +70,11 @@ def main():
     pygame.display.set_caption("SAMMLER")# pone nombre a la ventana
     
     fondo=pygame.image.load("fondoini.png")
-    nivel1=pygame.image.load("nivel.png")
+    
     #sonido1=pygame.mixer.Sound('sonidofondo.wav')# carga el archivo de audio
     
-    pygame.mixer.music.load('musica.mp3')
+    
+    pygame.mixer.music.load('musica.mp3')# cargar y reproduce un archivo de audio
     pygame.mixer.music.play(-1, 0.0)
     
     i1=pygame.image.load("welcome.png")
@@ -75,8 +105,11 @@ def main():
             if event.type==pygame.MOUSEBUTTONDOWN:
                 if cursor1.colliderect(boton1.rect):
                     game_over=True
-                #if cursor1.colliderect(boton2.rect):
+                if cursor1.colliderect(boton2.rect):
+                    pygame.mixer.music.stop()
+                    Nivel()
                     
+            
             if event.type == pygame.QUIT:
                 game_over = True
 

@@ -2,6 +2,7 @@ import pygame
 
 pygame.init()
 sonido1=pygame.mixer.Sound("pasos.wav")
+sonido1.set_volume(0.05)
 # clase base para los sprites
 class Ladron(pygame.sprite.Sprite):
     def __init__(self, pos):
