@@ -1,6 +1,7 @@
 #Módulos
 import os                                                  #modulo para centrar ventana
-import sys, pygame
+import sys, pygame                                         #modulo de pygame para usar todas las funciones, y sys para usar la funcion para cerrar el programa
+import random                                              #modulo para usar numeros randomicos
 from pygame.locals import *                                #con estas dos lineas importamos pygame
 
 #Constantes 
@@ -9,17 +10,24 @@ Alto = 720
 
 # Clases
 #--------------------------------------------------------------------------------
- 
+
+class Moneda(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image("coin.png", True)            # Cargar la imagen de la moneda
+        self.rect = self.image.get_rect()                    # Obtenemos el objeto rectángulo que posee las dimensiones de la imagen
+#--------------------------------------------------------------------------------
+
 class Policia(pygame.sprite.Sprite):                          #hereda metodos de clase pygame.sprite.Sprite que nos permite usarlos para el manejo de sprites
-    def __init__(self):                                       #inicializa la clase
+    def __init__(self, x, y):                                  #inicializa la clase y recibe parametros para posicion en ancho y alto
         pygame.sprite.Sprite.__init__(self)                   #invoca metodo init de la clase heredada
         self.image = load_image("policia.png", True)          #cargar imagen y el verdadero de transparencia
         self.rect = self.image.get_rect()                     #la función self.image.get_rect() obtiene un rectangulo con las dimensiones y posición de la imagen 
-        self.rect.centerx = Ancho/ 2                          #situa en centro del ancho de la ventana
-        self.rect.centery = Alto / 2                          #situa en centro del alto de la ventana
-        self.speed = [0.5, -0.5]                              #velocidad de movimiento con respecto a los ejes
+        self.rect.centerx = x                          #situa en centro del ancho de la ventana
+        self.rect.centery = y                                 #situa en centro del alto de la ventana
+        self.speed = [0.4, -0.4]                              #velocidad de movimiento con respecto a los ejes
 
-    def actualizar(self, time):                               #define el método y parametros del tiempo transcurrido
+    def actualizar(self, time, ladron_jug):                   #define el método y parametros del tiempo transcurrido
         self.rect.centerx += self.speed[0] * time             #fisica e=v*t pos en X (velocidad en el tiempo) y (tiempo transcurrido)
         self.rect.centery += self.speed[1] * time             #fisica e=v*t pos en Y
         if self.rect.left <= 0 or self.rect.right >= Ancho:   #parte izquierda del objeto a moverse no sea menor a 0 con respecto al rectangulo de la ventana externa
@@ -28,6 +36,10 @@ class Policia(pygame.sprite.Sprite):                          #hereda metodos de
         if self.rect.top <= 0 or self.rect.bottom >= Alto:
             self.speed[1] = -self.speed[1]                    #lo mismo pero con el eje Y
             self.rect.centery += self.speed[1] * time
+#COLISIONES
+       # if pygame.sprite.collide_rect(self, ladron_jug):      #similar a la anterior pero recibe parametro de ladron para verificar la colision
+        #    self.speed[0] = -self.speed[0]
+         #   self.rect.centerx += self.speed[0] * time
 #-------------------------------------------------------------------------------------
 
 class Ladron(pygame.sprite.Sprite):
@@ -37,7 +49,7 @@ class Ladron(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = x                                 #situa en la posicion pasada por parametro en x
         self.rect.centery = y                         #situa en la posicion pasada por parametro en y
-        self.speed = 0.3
+        self.speed = 0.3                                      #velocidad con la que se puede mover(actualizar) el ladron
  
     def mover(self, time, keys):                              #recibe parametros self y time para actualizar y keys para recibir valores booleanos de las teclas pulsadas
         if self.rect.top >= 0:                                #verifica que no se salga de rango en la parte superior el ladron                   
@@ -74,34 +86,78 @@ def load_image(fondo1, transparent=False):            #recibe parametros: 1)nomb
 
 #--------------------------------------------------------------------------------
 def main():
+    hecho = False
+    marcador = 0
     screen = pygame.display.set_mode((Ancho, Alto))         #definir tamaño de ventana
     pygame.display.set_caption("Sammler")                   #Poner titulo a la ventana
 
-    fondopantalla = load_image('fondo1.jpg')             #definir el fondo de pantalla
-    policia = Policia()                                  #crear policia
+    fondopantalla = load_image('fondo1.png')             #definir el fondo de pantalla
+
+    monedas_lista = pygame.sprite.Group()                #Lista de sprites se añade las monedas a una lista y es gestionada por la clase llamada Group
+    #lista_todos_sprites = pygame.sprite.Group()          #lista de cada uno de los sprites 
+
+    for i in range(100):
+        moneda = Moneda()                                    #crear la moneda
+ 
+        #posicion aleatoria para la moneda
+        moneda.rect.x = random.randrange(25,Ancho)           #randomicos dentro de el ancho de la ventana
+        moneda.rect.y = random.randrange(25,Alto)            #randomicos dentro de el alto de la ventana
+
+        #añadir moneda a la lista de objetos
+        monedas_lista.add(moneda)
+        
+    
+    policia = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5)))      #crear policia y colocar los parametros de posicion
+    policia1 = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5))) 
+    policia2 = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5)))
+    policia3 = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5)))
+    policia4 = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5)))
+    policia5 = Policia((random.randrange(100, 1280, 5)),(random.randrange(100, 720, 5)))
     ladron_jug = Ladron(30, 30)                              #crear ladron jugador y mandar parametros de posicion
 
-    clock = pygame.time.Clock()                         #creacion de reloj para saber tiempo que pasa desde ultima actualizacion e ir situando objetos en el espacio
+    reloj = pygame.time.Clock()                         #creacion de reloj para saber tiempo que pasa desde ultima actualizacion e ir situando objetos en el espacio
     
-#codigo juego
+#codigo o bucle principal del programa
 
-    while True:
-        time = clock.tick(60)                               #framerate de 60 para que funcione de las misma manera en todo ordenador
+    while not hecho:
+        
+        time = reloj.tick(60)                               #(fotogramas por seg)framerate de 60 para que funcione de las misma manera en todo ordenador
         keys = pygame.key.get_pressed()                     #se guardan las teclas presionadas
         
-        for eventos in pygame.event.get():
-            if eventos.type == QUIT:
-                sys.exit(0)
-           #        #exit()                                 #poder salir 
-               #       pygame.quit()     
-        policia.actualizar(time)                            #actualizaciones de el policia con respecto al tiempo transcurrido
+        for eventos in pygame.event.get():                  #el usuario hzo algo
+            if eventos.type == pygame.QUIT:                 #si el usuario hace click sobre cerrar
+                hecho = True                                #esto cambia para quese ejecute el pygame.quit y se cierre
+                    
+        
+        policia.actualizar(time,ladron_jug)                 #actualizaciones de el policia con respecto al tiempo transcurrido
+        policia1.actualizar(time,ladron_jug)
+        policia2.actualizar(time,ladron_jug)
+        policia3.actualizar(time,ladron_jug)
+        policia4.actualizar(time,ladron_jug)
+        policia5.actualizar(time,ladron_jug)
+        
         ladron_jug.mover(time,keys)                         #actualizaciones del ladron en pantalla con respecto alas teclas que se presionen y el tiempo transcurrido
+
         screen.blit(fondopantalla, (0, 0))                  #ubicar el fondo de pantalla en posicion 0,0
         screen.blit(policia.image, policia.rect)            #ubicar la imagen policia en ventana y pasar el rect para que se vaya moviendo y no sea estatico como en el fondo que se pasa coordenadas
+        screen.blit(policia1.image, policia1.rect)
+        screen.blit(policia2.image, policia2.rect)
+        screen.blit(policia3.image, policia3.rect)
+        screen.blit(policia4.image, policia4.rect)
+        screen.blit(policia5.image, policia5.rect)
         screen.blit(ladron_jug.image, ladron_jug.rect)      #de igual manera que con el policia
+
+        lista_impactos_monedas_ladron = pygame.sprite.spritecollide(ladron_jug, monedas_lista, True) # aqui se observa si la moneda a colisionado con el ladron
+        for moneda in lista_impactos_monedas_ladron:
+            marcador += 1
+            print (marcador)
+        monedas_lista.draw(fondopantalla)                   #dibuja todas las monedas
+        
+
         pygame.display.flip()                               #actualiza toda la ventana para que se muestren los cambios que han sucedido
         
-    return 0
+    pygame.quit()                                           #se cierra 
+    #return 0
 
 #inicializar    
 if __name__ == '__main__': 
@@ -109,5 +165,4 @@ if __name__ == '__main__':
     pygame.init()                                          #Con esto inicializamos pygame
     main()                                                 #llamada a la funcion main
     
-
 
