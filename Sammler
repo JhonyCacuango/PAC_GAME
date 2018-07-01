@@ -1,6 +1,6 @@
 #Módulos
 import os                                                  #modulo para centrar ventana
-import pygame
+import sys, pygame
 from pygame.locals import *                                #con estas dos lineas importamos pygame
 
 #Constantes 
@@ -10,28 +10,58 @@ Alto = 720
 # Clases
 #--------------------------------------------------------------------------------
  
-class Ladron(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = load_image("quieto.png", True)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = Ancho/ 2
-        self.rect.centery = Alto / 2
-        self.speed = [0.5, -0.5]
+class Policia(pygame.sprite.Sprite):                          #hereda metodos de clase pygame.sprite.Sprite que nos permite usarlos para el manejo de sprites
+    def __init__(self):                                       #inicializa la clase
+        pygame.sprite.Sprite.__init__(self)                   #invoca metodo init de la clase heredada
+        self.image = load_image("policia.png", True)          #cargar imagen y el verdadero de transparencia
+        self.rect = self.image.get_rect()                     #la función self.image.get_rect() obtiene un rectangulo con las dimensiones y posición de la imagen 
+        self.rect.centerx = Ancho/ 2                          #situa en centro del ancho de la ventana
+        self.rect.centery = Alto / 2                          #situa en centro del alto de la ventana
+        self.speed = [0.5, -0.5]                              #velocidad de movimiento con respecto a los ejes
 
-    def mover(self, time, keys):
-        
-            if keys[K_UP]:
-                self.rect.centery -= self.speed * time
-        
-            if keys[K_DOWN]:
-                self.rect.centery += self.speed * time
+    def actualizar(self, time):                               #define el método y parametros del tiempo transcurrido
+        self.rect.centerx += self.speed[0] * time             #fisica e=v*t pos en X (velocidad en el tiempo) y (tiempo transcurrido)
+        self.rect.centery += self.speed[1] * time             #fisica e=v*t pos en Y
+        if self.rect.left <= 0 or self.rect.right >= Ancho:   #parte izquierda del objeto a moverse no sea menor a 0 con respecto al rectangulo de la ventana externa
+            self.speed[0] = -self.speed[0]                    #y parte derecha no mayor a ancho para evitar que el objeto se salga de pantalla en el eje X
+            self.rect.centerx += self.speed[0] * time         
+        if self.rect.top <= 0 or self.rect.bottom >= Alto:
+            self.speed[1] = -self.speed[1]                    #lo mismo pero con el eje Y
+            self.rect.centery += self.speed[1] * time
+#-------------------------------------------------------------------------------------
+
+class Ladron(pygame.sprite.Sprite):
+    def __init__(self, x, y):                                 #inicializa la clase y pasa parametros para elegir el espacio en donde empezará el personaje
+        pygame.sprite.Sprite.__init__(self)
+        self.image = load_image("quieto.png", True)           #cargar imagen del ladron
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x                                 #situa en la posicion pasada por parametro en x
+        self.rect.centery = y                         #situa en la posicion pasada por parametro en y
+        self.speed = 0.3
+ 
+    def mover(self, time, keys):                              #recibe parametros self y time para actualizar y keys para recibir valores booleanos de las teclas pulsadas
+        if self.rect.top >= 0:                                #verifica que no se salga de rango en la parte superior el ladron                   
+            if keys[K_UP]:                                    #comprueba si la constante K_UP es 1 y eso diria que se tiene presionada la tecla flecha hacia arriba
+                 self.rect.centery -= self.speed * time       #en caso de tener presionada la tecla disminuye el valor centery haciendo que se mueva hacia arriba
+        if self.rect.bottom <= Alto:                          #verificar que no se salga del rango en la parte inferior
+            if keys[K_DOWN]:                                  #comprobacion constante = 1
+                self.rect.centery += self.speed * time        #presionar = aumentar centery y moverse hacia abajo
+        if self.rect.right <= Ancho:                          #verificacion en el rango y en la parte derecha
+            if keys[K_RIGHT]:                                 #comprobacion constante = 1
+                self.rect.centerx += self.speed * time        #aumenta centerx y moverse hacia la derecha
+        if self.rect.left >= 0:                               #verificacion para no salir de rango parte izquierda
+            if keys[K_LEFT]:                                  #comprobacion constante = 1
+                self.rect.centerx -= self.speed * time        #disminuye centerx y mueve hacia la izquierda
             
 #--------------------------------------------------------------------------------
         
 #Funciones
 
+
+
+
 #fondo
+        
 def load_image(fondo1, transparent=False):            #recibe parametros: 1)nombre/ruta 2)Si tiene parte transparente
         try: image = pygame.image.load(fondo1)        #asignacion de imagen a una variable
         except pygame.error. message:                       #maneja errores por si no existe imagen
@@ -47,23 +77,30 @@ def main():
     screen = pygame.display.set_mode((Ancho, Alto))         #definir tamaño de ventana
     pygame.display.set_caption("Sammler")                   #Poner titulo a la ventana
 
-    background_image = load_image('fondo1.jpg')
-    ladron = Ladron()
-    
-    clock = pygame.time.Clock()
+    fondopantalla = load_image('fondo1.jpg')             #definir el fondo de pantalla
+    policia = Policia()                                  #crear policia
+    ladron_jug = Ladron(30, 30)                              #crear ladron jugador y mandar parametros de posicion
+
+    clock = pygame.time.Clock()                         #creacion de reloj para saber tiempo que pasa desde ultima actualizacion e ir situando objetos en el espacio
     
 #codigo juego
 
     while True:
+        time = clock.tick(60)                               #framerate de 60 para que funcione de las misma manera en todo ordenador
+        keys = pygame.key.get_pressed()                     #se guardan las teclas presionadas
         
-        screen.blit(background_image, (0, 0))
-        screen.blit(ladron.image, ladron.rect)
-        pygame.display.flip()
+        for eventos in pygame.event.get():
+            if eventos.type == QUIT:
+                sys.exit(0)
+           #        #exit()                                 #poder salir 
+               #       pygame.quit()     
+        policia.actualizar(time)                            #actualizaciones de el policia con respecto al tiempo transcurrido
+        ladron_jug.mover(time,keys)                         #actualizaciones del ladron en pantalla con respecto alas teclas que se presionen y el tiempo transcurrido
+        screen.blit(fondopantalla, (0, 0))                  #ubicar el fondo de pantalla en posicion 0,0
+        screen.blit(policia.image, policia.rect)            #ubicar la imagen policia en ventana y pasar el rect para que se vaya moviendo y no sea estatico como en el fondo que se pasa coordenadas
+        screen.blit(ladron_jug.image, ladron_jug.rect)      #de igual manera que con el policia
+        pygame.display.flip()                               #actualiza toda la ventana para que se muestren los cambios que han sucedido
         
-        #for eventos in pygame.event.get():
-         #   if eventos.type == QUIT:
-          #        #exit()
-           #       pygame.quit()
     return 0
 
 #inicializar    
@@ -72,4 +109,5 @@ if __name__ == '__main__':
     pygame.init()                                          #Con esto inicializamos pygame
     main()                                                 #llamada a la funcion main
     
+
 
