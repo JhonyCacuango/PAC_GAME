@@ -1,28 +1,28 @@
 import pygame
 
 pygame.init()
-sonido1=pygame.mixer.Sound("pasos.wav")
+sonido1=pygame.mixer.Sound("pasos.wav")# crea el archivo de audio 
 sonido1.set_volume(0.05)
 # clase base para los sprites
 class Ladron(pygame.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos):# parametros iniciales de la clase
         self.sheet=pygame.image.load("ladron.png")#cargamos el personaje
         self.sheet.set_clip(pygame.Rect(0,0,52,76))#definimos un rectangulo con las dimenciones del personaje
         self.image = self.sheet.subsurface(self.sheet.get_clip())#lo definimos como imagen
         self.rect=self.image.get_rect()
         self.rect.topleft = pos#optener la posicion inicial del personaje
         self.frame = 0 #el frame inicial
-        self.left_states = { 0: (0, 76, 52, 76), 1: (52, 76, 52, 76), 2: (156, 76, 52, 76) }
-        self.right_states = { 0: (0, 152, 52, 76), 1: (52, 152, 52, 76), 2: (156, 152, 52, 76) }
+        self.left_states = { 0: (0, 76, 52, 76), 1: (52, 76, 52, 76), 2: (156, 76, 52, 76) }# los diferentre sestados de derecha
+        self.right_states = { 0: (0, 152, 52, 76), 1: (52, 152, 52, 76), 2: (156, 152, 52, 76) }# los estados de izquierda
         self.up_states = { 0: (0, 228, 52, 76), 1: (52, 228, 52, 76), 2: (156, 228, 52, 76) }
         self.down_states = { 0: (0, 0, 52, 76), 1: (52, 0, 52, 76), 2: (156, 0, 52, 76) }
 #optener el frame en el que se encuentra
     def get_frame(self, frame_set):
-        self.frame+=1
-        if self.frame>(len(frame_set)-1):
-            self.frame=0
-        return frame_set[self.frame]
-
+        self.frame+=1#avanza al siguiente frame
+        if self.frame>(len(frame_set)-1):# si esta el el ultimo frame 
+            self.frame=0# regresa al inicial 
+        return frame_set[self.frame]# devuelve el frame en el que se encuentra 
+# definir el rectangulo de la imagen 
     def clip(self, clipped_rect):
         if type(clipped_rect)is dict:
             self.sheet.set_clip(pygame.Rect(self.get_frame(clipped_rect)))
