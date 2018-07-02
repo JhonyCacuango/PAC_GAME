@@ -14,6 +14,7 @@ def Nivel():
     y=20
     player = ladron.Ladron((ancho_ventana/2, alto_ventana/2))
     coin = moneda.Moneda(x,y)
+    segundosint=0
     cantidad=0
     fuente1=pygame.font.SysFont("Arial",20,True,False)#crea la fuente
     
@@ -43,8 +44,18 @@ def Nivel():
         coin.animacion(tiempo)  
         total=str(cantidad)
         contador=fuente1.render("MONEDAS "+ str(total),0,pygame.Color('orange'))
+        
+        if game_over==False:
+            segundosint= pygame.time.get_ticks()/1000 #toma el tiempo que se esta ejecutando el juego
+            segundos=str(segundosint)#los combierte de numero a string
+            transcurre=fuente1.render(segundos,0,pygame.Color('orange'))#pone el tiempo en un texto
+        else:
+            transcurre=fuente1.render(segundos,0,pygame.Color('orange'))
+        
+        screen.blit(transcurre,(600,5))
         screen.blit(contador,(450,5))  
         pygame.display.update()
+        
         
     pygame.quit ()
     

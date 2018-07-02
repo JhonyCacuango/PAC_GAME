@@ -49,6 +49,7 @@ def Nivel():
     player = ladron.Ladron((ancho_ventana/2, alto_ventana/2))
     coin = moneda.Moneda(x,y)
     cantidad=0
+    fuente1=pygame.font.SysFont("Arial",20,True,False)#crea la fuente
     
     clock = pygame.time.Clock()
     game_over = False
@@ -73,7 +74,10 @@ def Nivel():
         player.handle_event(event)
         screen.blit(player.image, player.rect)
         coin.dibujar(screen)  
-        coin.animacion(tiempo) 
+        coin.animacion(tiempo)  
+        total=str(cantidad)
+        contador=fuente1.render("MONEDAS "+ str(total),0,pygame.Color('orange'))
+        screen.blit(contador,(450,5))  
         pygame.display.update()
         
     pygame.quit ()
