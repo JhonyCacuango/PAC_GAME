@@ -36,10 +36,7 @@ class Policia(pygame.sprite.Sprite):                          #hereda metodos de
         if self.rect.top <= 0 or self.rect.bottom >= Alto:
             self.speed[1] = -self.speed[1]                    #lo mismo pero con el eje Y
             self.rect.centery += self.speed[1] * time
-#COLISIONES
-       # if pygame.sprite.collide_rect(self, ladron_jug):      #similar a la anterior pero recibe parametro de ladron para verificar la colision
-        #    self.speed[0] = -self.speed[0]
-         #   self.rect.centerx += self.speed[0] * time
+            
 #-------------------------------------------------------------------------------------
 
 class Ladron(pygame.sprite.Sprite):
@@ -95,7 +92,10 @@ def main():
 
     monedas_lista = pygame.sprite.Group()                #Lista de sprites se añade las monedas a una lista y es gestionada por la clase llamada Group
     #lista_todos_sprites = pygame.sprite.Group()          #lista de cada uno de los sprites 
-
+    
+    pygame.mixer.music.load('song.wav')			#Musica de fondo
+    pygame.mixer.music.play(3)				    #numero de veces que va a repetirse la musica
+    
     for i in range(100):
         moneda = Moneda()                                    #crear la moneda
  
@@ -156,6 +156,11 @@ def main():
 
         pygame.display.flip()                               #actualiza toda la ventana para que se muestren los cambios que han sucedido
         
+        #COLISIONES
+       	if pygame.sprite.collide_rect(ladron_jug, policia):      #se produce la colision entre el ladron y policia pero se cierra el programa despues de la colision :/
+             self.speed[0] = -self.speed[0]
+             self.rect.centerx += self.speed[0] * time
+             
     pygame.quit()                                           #se cierra 
     #return 0
 
